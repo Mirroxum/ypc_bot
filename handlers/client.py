@@ -4,6 +4,7 @@ from aiogram import types
 from keyboards import client_kb
 from create_bot import bot, dp
 from data import const
+from data_base import sqlite_db as db
 
 
 @dp.callback_query_handler(text='back_to_menu')
@@ -15,7 +16,7 @@ async def process_callback_back_to_menu(callback_query: types.CallbackQuery):
 @dp.callback_query_handler(text='help')
 async def process_callback_help(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
-    await bot.send_message(callback_query.from_user.id, const.HELP_MESSAGE)
+    await bot.send_message(callback_query.from_user.id, const.HELP_MESSAGE, reply_markup=client_kb.kb_back_to_menu)
 
 
 @dp.callback_query_handler(text='location')
@@ -30,6 +31,18 @@ async def process_callback_enter(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
     await bot.send_location(callback_query.from_user.id, latitude=const.LATITUDE_LOCATION, longitude=const.LONGITUDE_LOCATION)
     await bot.send_message(callback_query.from_user.id, const.LOCATION, reply_markup=client_kb.kb_back_to_menu)
+
+
+@dp.callback_query_handler(text='schedule')
+async def process_callback_tournament_admin(callback_query: types.CallbackQuery):
+    await bot.answer_callback_query(callback_query.id)
+    for tournament in db.sql_read_tournament(show_next=True):
+        await bot.send_photo(
+            callback_query.from_user.id,
+            photo=tournament[1],
+            caption=f'*Событие:*{tournament[2]}.\n\n*Начало:*{tournament[5]}\n\n *Описание:*{tournament[3]}',
+            parse_mode='Markdown',
+            reply_markup=client_kb.kb_tournament)
 
 # @dp.callback_query_handler(text='order_taxi')
 # async def process_callback_button1(callback_query: types.CallbackQuery):

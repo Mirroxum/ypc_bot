@@ -32,9 +32,9 @@ async def make_changes_command(message: types.Message):
 async def process_callback_tournament_admin(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
     if callback_query.from_user.id == id_admin:
-        tournaments = db.sql_read_tournament()
+        tournaments = db.sql_read_tournament(show_next=False)
         for tournament in tournaments:
-            await bot.send_message(callback_query.from_user.id, f'Турнир:{tournament[1]}.\n\nНачало туринра:{tournament[5]}\n\n Описание турнира:{tournament[3]}', reply_markup=admin_kb.kb_tournament)
+            await bot.send_message(callback_query.from_user.id, f'Турнир:{tournament[2]}.\n\nНачало туринра:{tournament[5]}\n\n Описание турнира:{tournament[3]}', reply_markup=admin_kb.kb_tournament)
 
 
 @dp.callback_query_handler(text='create_event')

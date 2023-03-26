@@ -1,11 +1,12 @@
 import sqlite3 as sq
-from create_bot import dp, bot
+from datetime import datetime
 
 
 def sql_start():
     global base, cur
     base = sq.connect('ypc.db',
-                      detect_types=sq.PARSE_DECLTYPES | sq.PARSE_COLNAMES)
+                      detect_types=sq.PARSE_DECLTYPES | sq.PARSE_COLNAMES
+                      )
     cur = base.cursor()
     if base:
         print('Data base connected OK!')
@@ -47,5 +48,21 @@ async def sql_add_tournament(data):
     base.commit()
 
 
-def sql_read_tournament():
-    return cur.execute('SELECT * FROM tournament').fetchall()
+def sql_read_tournament(show_next=True):
+    if show_next:
+        today = datetime.now().today()
+        print(today)
+        next = f' WHERE datetime_event >= "{today}"'
+    else:
+        next = ''
+    return cur.execute(f'SELECT * FROM tournament{next};').fetchall()
+
+
+# def test_sql():
+#     query = cur.execute(
+#         'SELECT * FROM tournament WHERE datetime_event > "2023-07-26";').fetchall()
+#     print(query)
+
+
+# sql_start()
+# test_sql()
