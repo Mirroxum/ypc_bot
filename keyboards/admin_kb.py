@@ -30,3 +30,12 @@ kb_back_admin.row(back_admin_menu)
 # Меню для турниров
 kb_tournament = InlineKeyboardMarkup()
 kb_tournament.row(add_result)
+
+# Меню выбора типа события
+cash_choose_bt = InlineKeyboardButton(
+    'Кэш', callback_data='cash')
+tournament_choose_bt = InlineKeyboardButton(
+    'Турнир', callback_data='tournament')
+kb_choose_event_admin = InlineKeyboardMarkup()
+kb_choose_event_admin.row(
+    cash_choose_bt, tournament_choose_bt).row(back_admin_menu)

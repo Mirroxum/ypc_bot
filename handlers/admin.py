@@ -13,6 +13,7 @@ id_admin = None
 
 
 class EventAdmin(StatesGroup):
+    type_event = State()
     photo = State()
     name = State()
     description = State()
@@ -41,8 +42,18 @@ async def process_callback_tournament_admin(callback_query: types.CallbackQuery)
 async def process_callback_tournament_admin(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
     if callback_query.from_user.id == id_admin:
-        await EventAdmin.photo.set()
-        await bot.send_message(callback_query.from_user.id, 'Загрузи фото к событию', reply_markup=admin_kb.kb_back_admin)
+        await EventAdmin.type_event.set()
+        await bot.send_message(callback_query.from_user.id, 'Выбери тип события', reply_markup=admin_kb.kb_choose_event_admin)
+
+
+@dp.callback_query_handler(state=EventAdmin.type_event)
+async def set_type(callback_query: types.CallbackQuery, state: FSMContext):
+    if callback_query.from_user.id == id_admin:
+        await bot.answer_callback_query(callback_query.id)
+        async with state.proxy() as data:
+            data['type_event'] = callback_query.data
+        await EventAdmin.next()
+        await bot.send_message(callback_query.from_user.id, 'Теперь отправьте фото для события', reply_markup=admin_kb.kb_back_admin)
 
 
 @dp.message_handler(state=EventAdmin.photo, content_types=['photo'])
@@ -89,7 +100,7 @@ async def set_datetime(message: types.Message, state: FSMContext):
                 message.text, '%d.%m.%Y %H.%M')
             data['datetime'] = datetime_tournament
         async with state.proxy() as data:
-            await db.sql_add_tournament(data)
+            await db.sql_add_event(data)
             await message.reply('Событие успешно создано!', reply_markup=admin_kb.kb_admin_menu)
         await state.finish()
 

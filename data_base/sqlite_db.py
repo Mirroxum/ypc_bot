@@ -17,7 +17,8 @@ def sql_start():
         'name TEXT,'
         'description TEXT,'
         'structure TEXT,'
-        'datetime_event timestamp)'
+        'datetime_event timestamp,'
+        'type_event TEXT)'
     )
     base.execute(
         'CREATE TABLE IF NOT EXISTS result('
@@ -42,20 +43,25 @@ def sql_start():
     base.commit()
 
 
-async def sql_add_tournament(data):
-    cur.execute('INSERT INTO tournament (img, name, description, structure, datetime_event) VALUES (?, ?, ?, ?, ?);',
+async def sql_add_event(data):
+    cur.execute('INSERT INTO tournament (type_event, img, name, description, structure, datetime_event) VALUES (?, ?, ?, ?, ?, ?);',
                 tuple(data.values()))
     base.commit()
 
 
-def sql_read_tournament(show_next=True):
+def sql_read_tournament(show_next=True, field='*'):
     if show_next:
         today = datetime.now().today()
-        print(today)
         next = f' WHERE datetime_event >= "{today}"'
     else:
         next = ''
-    return cur.execute(f'SELECT * FROM tournament{next};').fetchall()
+    return cur.execute(f'SELECT {field} FROM tournament{next};').fetchall()
+
+
+def sql_read_structure(id):
+    data = cur.execute(
+        f'SELECT structure FROM tournament WHERE id={id};').fetchall()
+    return data[0][0]
 
 
 # def test_sql():
@@ -65,4 +71,4 @@ def sql_read_tournament(show_next=True):
 
 
 # sql_start()
-# test_sql()
+# print(sql_read_structure(1))
